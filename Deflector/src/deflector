@@ -1,0 +1,26 @@
+#!/bin/bash
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+BUILDTOOL_HOME="$( cd -P "$( dirname "$SOURCE" )"/.. && pwd )"
+
+BIN=${BUILDTOOL_HOME}/bin
+LIB=${BUILDTOOL_HOME}/lib
+
+CLASSPATH=${BIN}/deflector-1.0.jar
+CLASSPATH=${CLASSPATH}:${LIB}/commons-io-2.4.jar
+CLASSPATH=${CLASSPATH}:${LIB}/commons-lang-2.6.jar
+CLASSPATH=${CLASSPATH}:${LIB}/jgrapht-core-0.9.0.jar
+CLASSPATH=${CLASSPATH}:${LIB}/commons-cli-1.2.jar
+
+for arg in "$@" ; do
+  if [ "$arg" = "-debug" ] ; then
+    DEBUG="-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y"
+  fi
+done
+
+java -Xmx1g -classpath ${CLASSPATH} ${DEBUG} ch.liquidmind.deflector.Main $*

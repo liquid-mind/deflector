@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project>
+
+<project name="Deflector" basedir=".">
+	<description>Deflector</description>
+	
+	<property environment="env"/>
+	<property name="version" value="1.0"/>
+	<property name="src" location="${basedir}/src"/>
+	<property name="target" location="${basedir}/target"/>
+	<property name="target.classes" location="${target}/classes"/>
+	<property name="lib" location="${basedir}/lib"/>
+	<property name="deflector.jar" value="${target}/deflector-${version}.jar"/>
+	<property name="deflector-release.tar" value="${target}/deflector-${version}-release.tar"/>
+	<property name="deflector-release.tar.gz" value="${deflector-release.tar}.gz"/>
+	<property name="install.location" value="/opt/local/share/java"/>
+	<property name="install.location-win" value = "${env.ProgramFiles}" />
+	<property name="executable.location" value="/opt/local/bin"/>
+	<property name="debug" value="false"/>
+	<property name="gen.debug.code" value="on"/>
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	<taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" classpath="/opt/local/share/java/apache-ant/lib/ant-junit.jar"/>
+	
+	<path id="libs.compile">
+		<fileset dir="${lib}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${target}"/>
+		<mkdir dir="${target.classes}"/>
+		<if>
+			<equals arg1="${debug}" arg2="true"/>
+			<then>
+				<property name="regular.jvm.debug.arg"
+					value="-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y"/>
+			</then>
+			<else>
+				<property name="regular.jvm.debug.arg" value=""/>
+			</else>
+		</if>
+	</target>
+	
+	<target name="compile" depends="init">
+		<javac
+			includeantruntime="false"
+			srcdir="${src}"
+			destdir="${target.classes}"
+			classpathref="libs.compile"
+			debug="on"
+			debuglevel="lines,vars,source"
+			encoding="UTF8"/>
+	</target>
+
+	<target name="package" depends="compile">
+		<jar destfile="${deflector.jar}">
+			<zipfileset dir="${target.classes}">
+				<include name="**"/>
+			</zipfileset>
+		</jar>
+	</target>
+
+	<target name="build-release" depends="package">
+		<tar destfile="${deflector-release.tar}" longfile="gnu">
+			<tarfileset dir="${target}" prefix="deflector/bin">
+				<include name="deflector-${version}.jar"/>
+			</tarfileset>
+			<tarfileset dir="${lib}" prefix="deflector/lib">
+				<include name="*.jar"/>
+			</tarfileset>
+			<tarfileset file="${src}/deflector" filemode="755" username="*" group="*" prefix="deflector/bin"/>
+			<tarfileset file="${src}/deflector.bat" filemode="755" username="*" group="*" prefix="deflector/bin"/>
+		</tar>
+		<gzip destfile="${deflector-release.tar.gz}" src="${deflector-release.tar}"/>
+	</target>
+	
+	<target name="install-release" depends="build-release">
+		<exec executable="sudo">
+			<arg line="rm -R ${install.location}/deflector"/>
+		</exec>
+		<exec executable="sudo">
+			<arg line="tar xzf ${deflector-release.tar.gz} -C ${install.location}"/>
+		</exec>
+		<exec executable="sudo">
+			<arg line="rm ${executable.location}/deflector"/>
+		</exec>
+		<exec executable="sudo">
+			<arg line="ln -s ${install.location}/deflector/bin/deflector ${executable.location}/deflector"/>
+		</exec>
+	</target>
+	
+	<target name="install-release-win" depends="build-release">
+		<delete dir="${install.location-win}\deflector"/>
+		<untar src="${deflector-release.tar}" dest="${install.location-win}"/>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${target}"/>
+	</target>
+	
+</project>
