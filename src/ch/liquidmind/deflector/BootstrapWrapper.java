@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -61,6 +62,18 @@ public class BootstrapWrapper
 			return uri.toURL();
 		}
 		catch ( MalformedURLException e )
+		{
+			throw new RuntimeException( e );
+		}
+	}
+	
+	public static URI URL_toURI( URL url )
+	{
+		try
+		{
+			return url.toURI();
+		}
+		catch ( URISyntaxException e )
 		{
 			throw new RuntimeException( e );
 		}

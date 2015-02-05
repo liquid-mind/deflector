@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.apache.commons.io.filefilter.IOFileFilter;
 
+import ch.liquidmind.deflector.BootstrapWrapper;
+
 public class FileList extends ArrayList< String >
 {
 	private static final long serialVersionUID = 1L;
@@ -107,7 +109,7 @@ public class FileList extends ArrayList< String >
 		List< String > files = new ArrayList< String >();
 		
 		for ( URL url : urls )
-			files.add( url.getFile() );
+			files.add( Paths.get( BootstrapWrapper.URL_toURI( url ) ).toFile().getAbsolutePath() );
 		
 		addAll( files );
 		return this;
