@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -56,7 +57,7 @@ public class DeflectorIO
 		FileList compilableFiles = getCompilableFiles( srcDirs, destDir );
 		classpath.add( destDir );
 		
-		String classpathAsString = StringUtils.join( classpath, ":" );
+		String classpathAsString = StringUtils.join( classpath, System.getProperty( "path.separator" ) );
 		Iterable< String > compilationOptions = Arrays.asList( new String[] {
 			"-d", destDir,
 			"-classpath", classpathAsString,
