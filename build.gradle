@@ -3,7 +3,7 @@ apply plugin: "application"
 
 jar {
     version = "0.0.1"
-    from "LICENSE" {
+    from ("./LICENSE") {
         into "META-INF"
     }
 }
