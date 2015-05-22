@@ -1,10 +1,13 @@
 apply plugin: "java"
 apply plugin: "application"
+apply plugin: "maven"
 apply plugin: "eclipse"
 apply plugin: "idea"
 
+group = "ch.liquidmind"
+version = "0.0.1"
+
 jar {
-    version = "0.0.1"
     from ("./LICENSE") {
         into "META-INF"
     }
@@ -14,6 +17,7 @@ mainClassName = "ch.liquidmind.deflector.Main"
 applicationDefaultJvmArgs = ["-Xmx1g"]
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
