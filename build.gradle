@@ -81,6 +81,7 @@ publishing {
     }
 }
 
+/*
 bintray {
         publications = ['mavenJava']
         dryRun = false
@@ -99,3 +100,4 @@ bintray {
             }
         }
 }
+*/
