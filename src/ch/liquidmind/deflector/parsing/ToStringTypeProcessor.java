@@ -162,7 +162,7 @@ public class ToStringTypeProcessor extends AbstractTypeProcessor
 		
 		String extendsClause = "";
 		
-		if ( getLocal( OUTPUT_EXTENDS_CLAUSE ) )
+		if ( (boolean)getLocal( OUTPUT_EXTENDS_CLAUSE ) )
 		{
 			if ( typeVariableOutputVariant.equals( TypeVariableOutputVariant.SHOW_TYPE_VARIABLE_DEFINITION ) )
 				extendsClause = " extends " + getReturn();
