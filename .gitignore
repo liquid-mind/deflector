@@ -1,2 +1,16 @@
-/target/
-/bin/
+### Gradle ###
+.gradle
+build/
+
+### OSX ###
+.DS_Store
+
+### Eclipse ###
+.classpath
+.project
+.settings/
+
+### IDEA ###
+*.iml
+*.ipr
+*.iws

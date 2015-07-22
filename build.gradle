@@ -1,0 +1,101 @@
+plugins {
+    id "java"
+    id "application"
+    id "maven-publish"
+    id "eclipse"
+    id "idea"
+    id "com.jfrog.bintray" version "1.2"
+}
+
+
+group = "ch.liquidmind"
+version = "0.0.1"
+
+jar {
+    from ("./LICENSE") {
+        into "META-INF"
+    }
+}
+
+mainClassName = "ch.liquidmind.deflector.Main"
+applicationDefaultJvmArgs = ["-Xmx1g"]
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "commons-cli:commons-cli:1.2", "commons-io:commons-io:2.4", "commons-lang:commons-lang:2.6", "org.jgrapht:jgrapht-core:0.9.0"
+}
+
+// Sources JAR
+task sourceJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+}
+
+// Javadocs JAR
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name',
+                                    'ch.liquidmind:deflector')
+                root.appendNode('description',
+                                    'Turns checked exceptions into runtime exceptions by generating wrapper classes for arbitrary APIs in Java.')
+                root.appendNode('url',
+                                    'http://www.liquidmind.ch/')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('connection', 'scm:git:git@github.com:liquid-mind/deflector.git')
+                scm.appendNode('developerConnection', 'scm:git:git@github.com:liquid-mind/deflector.git')
+                scm.appendNode('url', 'git@github.com:liquid-mind/deflector.git')
+
+                def developer = root.appendNode('developers').appendNode('developer')
+                developer.appendNode('name', 'John Brush')
+                developer.appendNode('email', 'brsh@zhaw.ch')
+                developer.appendNode('organization', 'Liquidmind')
+                developer.appendNode('organizationUrl', 'http://www.liquidmind.ch')
+            }
+        }
+    }
+}
+
+bintray {
+        publications = ['mavenJava']
+        dryRun = false
+        publish = false
+        user=BINTRAY_USER
+        key=BINTRAY_API_KEY
+        print "User: " + BINTRAY_USER
+        pkg {
+            repo = 'maven'
+            name = 'deflector'
+            version {
+                gpg {
+                    sign = true
+                    passphrase=BINTRAY_GPG_PASS
+                }
+            }
+        }
+}
