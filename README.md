@@ -45,12 +45,14 @@ You should now have deflector installed under `build/install/deflector`. Now, tr
 	    --keepIntermediate <arg>     keep intermediate output (true|false)
 	    --output <arg>               output location
 
-Next, try deflecting the Java runtime libraries of your JRE/JDK using this command: `./build/install/deflector/bin/deflector --jar /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/rt.jar --output build --includes java.* org.xml.* javax.* org.omg.*` (where `/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre` should be replaced by the root directory of your JRE):
+Next, try deflecting the Java runtime libraries of your JRE/JDK using this command: `./build/install/deflector/bin/deflector --jar /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/rt.jar --output build --includes java.* javax.* org.omg.* org.xml.*` (where `/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre` should be replaced by the root directory of your JRE):
 
 	Generating deflector classes...
 	Compiling deflector classes...
 	Creating jar: /Users/john/Downloads/test2/deflector/build/__rt.jar
 	Done.
+	
+Note the usage of the `--includes` option: this tells deflector to include only packages beginning with either `java`, `javax`, `org.omg` or `org.xml`. This is important, as `rt.jar` contains many internal APIs not intended for general use; these do not interest us and will lead to compiler errors.
 
 Take a look at the contents of the generated jar with `jar tf build/__rt.jar`:
 
@@ -66,14 +68,14 @@ Take a look at the contents of the generated jar with `jar tf build/__rt.jar`:
 
 For every class that defines at least one method with a checked exception you should have a corresponding "deflected" class: the default naming convention is to add a double-underscore to the root package name and the simple name. You may now use `__rt.jar` in your projects to invoke standard Java libaries without needing to deal with checked exceptions. For example:
 
-			try
-			{
-				ClassLoader.getSystemClassLoader().loadClass( "java.lang.String" );
-			}
-			catch ( ClassNotFoundException e )
-			{
-				// handle exception
-			}
+	try
+	{
+		ClassLoader.getSystemClassLoader().loadClass( "java.lang.String" );
+	}
+	catch ( ClassNotFoundException e )
+	{
+		// handle exception
+	}
 
 ...becomes simply:
 
@@ -85,5 +87,4 @@ The following rules apply to deflected methods:
 * Deflected methods have one additional argument of the owning class type (e.g., ClassLoader above).
 * If the orignal method (e.g. ClassLoader.loadClass() ) is an *instance* method then you should pass the instance ( e.g., ClassLoader.getSystemClassLoader() ) as the first argument.
 * If the orignal method is static, then you should pass *null* as the first argument.
-
 
